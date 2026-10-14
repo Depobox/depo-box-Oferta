@@ -79,7 +79,10 @@ function money(n){return Number(n).toLocaleString("ro-RO")+" lei";}
 function renderSizes(){
   const sizes=data[locationEl.value]||{};
   sizeEl.innerHTML="";
-  Object.entries(sizes).sort((a,b)=>parseFloat(a[0])-parseFloat(b[0])).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
+  Object.entries(sizes).sort((a,b)=>{
+const order=locationEl.value==="valeabadanc"?["3","4.5","5","6","9","10","13.5","15","20"]:["3.5","5","7","10","15","20"];
+return order.indexOf(a[0])-order.indexOf(b[0]);
+}).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
   renderResult();
 }
 function renderResult(){
