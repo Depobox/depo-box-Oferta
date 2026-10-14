@@ -1,149 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#252a30">
 <title>Depo-Box | Calculator prețuri</title>
 <style>
-:root{--bg:#f3f4f5;--ink:#252a30;--muted:#626a73;--accent:#e6a23c;--card:#fff;--line:#dfe3e7}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Arial,Helvetica,sans-serif}
-header{background:var(--ink);color:#fff;padding:26px 18px 30px;text-align:center;border-bottom:5px solid var(--accent)}
-.brand{font-size:clamp(30px,7vw,42px);font-weight:800;letter-spacing:1px}.brand span{color:var(--accent)}
-header p{margin:6px 0 0;color:#e4e6e8}
-main{max-width:760px;margin:22px auto;padding:0 14px 36px}
-.card{background:var(--card);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 4px 18px #1c253010}
-label{display:block;font-weight:700;margin:12px 0 6px}
-select,input{width:100%;padding:13px 12px;border:1px solid #cbd1d7;border-radius:9px;background:white;font:inherit;color:var(--ink)}
-select:focus,input:focus{outline:2px solid #e6a23c80;border-color:var(--accent)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pricebox{background:#f8f4ec;border:1px solid #f0dfc1;border-radius:12px;padding:18px;margin-top:18px}
-.pricebox .small{color:var(--muted);font-size:14px}.price{font-size:clamp(30px,7vw,38px);font-weight:800;margin:2px 0}.total{font-size:18px;font-weight:700}
-button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:700 16px Arial;cursor:pointer;margin-top:12px}
-.wa{background:#1fa855;color:#fff}.secondary{background:var(--ink);color:#fff}
-.note{font-size:13px;color:var(--muted);margin:10px 0 0}
-footer{text-align:center;color:var(--muted);font-size:13px;padding:0 10px 24px}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.card{padding:16px}}
+:root{--navy:#172b4d;--blue:#2457a7;--gold:#f2b544;--bg:#f4f6f9;--text:#182230;--muted:#657184;--line:#dfe5ed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:var(--navy);color:#fff;padding:24px 16px;text-align:center}header h1{margin:0;font-size:28px;letter-spacing:.4px}header p{margin:7px 0 0;color:#dce5f4}
+main{max-width:900px;margin:24px auto;padding:0 14px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #172b4d0a}
+h2{margin:0 0 16px;font-size:20px;color:var(--navy)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}select{width:100%;padding:12px;border:1px solid #cbd4e0;border-radius:8px;background:#fff;font-size:16px;color:var(--text)}
+.result{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px}.price{font-size:32px;font-weight:800;color:var(--blue);margin:4px 0}.muted{color:var(--muted);font-size:14px;line-height:1.5}.detail{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.detail:last-child{border-bottom:0}
+button,.whatsapp{display:inline-block;border:0;border-radius:8px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none}.whatsapp{background:#168b54;color:#fff;margin-top:14px}.status{font-size:13px;color:var(--muted);margin-top:12px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}header h1{font-size:24px}.panel{padding:16px}.price{font-size:28px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">DEPO<span>-</span>BOX</div>
-  <p>Calculator de prețuri pentru boxe de depozitare</p>
-</header>
+<header><h1>DEPO-BOX</h1><p>Calculator prețuri pentru boxe de depozitare</p></header>
 <main>
-  <section class="card">
-    <label for="location">1. Alege locația</label>
-    <select id="location">
-      <option value="lupului">Valea Lupului</option>
-      <option value="adanca">Valea Adâncă</option>
-    </select>
-    <div class="grid">
-      <div>
-        <label for="size">2. Dimensiunea boxei</label>
-        <select id="size"></select>
-      </div>
-      <div>
-        <label for="duration">3. Durata contractului</label>
-        <select id="duration">
-          <option value="12">12 luni</option>
-          <option value="6">6 luni</option>
-          <option value="3">3 luni</option>
-          <option value="1">1 lună</option>
-        </select>
-      </div>
-    </div>
-    <div class="pricebox" aria-live="polite">
-      <div class="small">Preț lunar</div>
-      <div class="price" id="monthly">330 lei</div>
-      <div class="total">Total contract: <span id="total">3.960 lei</span></div>
-      <p class="note">Tarifele sunt exprimate în lei. Totalul este calculat ca preț lunar × numărul de luni.</p>
-    </div>
-  </section>
-  <section class="card">
-    <h2 style="margin:0 0 6px">Solicită o boxă</h2>
-    <p style="margin:0;color:var(--muted)">Completează datele, apoi trimite solicitarea pe WhatsApp.</p>
-    <label for="name">Nume</label>
-    <input id="name" autocomplete="name" placeholder="Numele tău">
-    <label for="phone">Număr de telefon</label>
-    <input id="phone" type="tel" autocomplete="tel" placeholder="Numărul tău de telefon">
-    <button class="wa" id="send">Trimite solicitarea pe WhatsApp</button>
-    <button class="secondary" id="share">Distribuie calculatorul</button>
-    <p class="note">Butonul WhatsApp deschide conversația cu mesajul pregătit. Solicitarea se trimite după ce apeși „Trimite” în WhatsApp.</p>
-  </section>
+<section class="panel">
+<h2>Alege boxa potrivită</h2>
+<div class="grid">
+<div><label for="location">Locație</label><select id="location"><option value="valealupului">Valea Lupului</option><option value="valeabadanc">Valea Adâncă</option></select></div>
+<div><label for="size">Suprafața boxei</label><select id="size"></select></div>
+<div><label for="term">Perioada contractului</label><select id="term"><option value="12">12 luni</option><option value="6">6 luni</option><option value="3">3 luni</option><option value="1">1 lună</option></select></div>
+</div>
+<div class="result">
+<div class="muted">Preț pe lună</div><div class="price" id="price">Se încarcă...</div>
+<div class="detail"><span>Suprafață</span><strong id="area">—</strong></div>
+<div class="detail"><span>Dimensiuni</span><strong id="dimensions">—</strong></div>
+<div class="detail"><span>Durată</span><strong id="duration">12 luni</strong></div>
+<div class="detail"><span>Total pentru perioada aleasă</span><strong id="total">—</strong></div>
+<a class="whatsapp" id="whatsapp" target="_blank" rel="noopener">Solicită boxa pe WhatsApp</a>
+<p class="muted">Prețurile afișate sunt în lei/lună. Disponibilitatea se confirmă de echipa Depo-Box.</p>
+</div>
+<p class="status" id="status">Se încarcă tarifele...</p>
+</section>
 </main>
-<footer>Depo-Box · Prețurile pot fi confirmate la solicitarea rezervării.</footer>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-const prices = {
-  lupului: {
-    name: "Valea Lupului",
-    sizes: {
-      "3.5": {label:"3,5 mp", p:{"12":230,"6":245,"3":260,"1":290}},
-      "5": {label:"5 mp", p:{"12":330,"6":345,"3":360,"1":390}},
-      "7": {label:"7 mp", p:{"12":430,"6":445,"3":460,"1":490}},
-      "10": {label:"10 mp", p:{"12":590,"6":610,"3":630,"1":690}},
-      "15": {label:"15 mp", p:{"12":830,"6":850,"3":870,"1":950}},
-      "20": {label:"20 mp", p:{"12":1200,"6":1250,"3":1300,"1":1400}}
-    }
+const firebaseConfig = {
+  apiKey: "AIzaSyCXzOPmQCXfRITvkn3B9YZC4GXe5c8_00M",
+  authDomain: "depo-box-admin.firebaseapp.com",
+  projectId: "depo-box-admin",
+  storageBucket: "depo-box-admin.firebasestorage.app",
+  messagingSenderId: "202575343129",
+  appId: "1:202575343129:web:89440882cf69eabf174488"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const WHATSAPP_NUMBER = "40750419504";
+const fallback = {
+  valealupului: {
+    "3.5": {label:"3,5 mp", dimensions:"1,15 × 3 m", prices:{"12":230,"6":245,"3":260,"1":290}},
+    "5": {label:"5 mp", dimensions:"1,65 × 3 m", prices:{"12":330,"6":345,"3":360,"1":390}},
+    "7": {label:"7 mp", dimensions:"2,5 × 3 m", prices:{"12":430,"6":445,"3":460,"1":490}},
+    "10": {label:"10 mp", dimensions:"3,3 × 3 m", prices:{"12":590,"6":610,"3":630,"1":690}},
+    "15": {label:"15 mp", dimensions:"5 × 3 m", prices:{"12":830,"6":850,"3":870,"1":950}},
+    "20": {label:"20 mp", dimensions:"6,6 × 3 m", prices:{"12":1200,"6":1250,"3":1300,"1":1400}}
   },
-  adanca: {
-    name: "Valea Adâncă",
-    sizes: {
-      "3": {label:"3 mp", p:{"12":220,"6":235,"3":250,"1":290}},
-      "4.5": {label:"4,5 mp", p:{"12":315,"6":330,"3":345,"1":390}},
-      "5": {label:"5 mp", p:{"12":340,"6":355,"3":370,"1":420}},
-      "6": {label:"6 mp", p:{"12":400,"6":415,"3":430,"1":490}},
-      "9": {label:"9 mp", p:{"12":570,"6":585,"3":600,"1":650}},
-      "10": {label:"10 mp", p:{"12":620,"6":640,"3":660,"1":710}},
-      "13.5": {label:"13,5 mp", p:{"12":830,"6":845,"3":860,"1":910}},
-      "15": {label:"15 mp", p:{"12":890,"6":910,"3":930,"1":990}},
-      "20": {label:"20 mp", p:{"12":1200,"6":1250,"3":1300,"1":1400}}
-    }
+  valeabadanc: {
+    "3": {label:"3 mp", dimensions:"De completat", prices:{"12":220,"6":235,"3":250,"1":290}},
+    "4.5": {label:"4,5 mp", dimensions:"De completat", prices:{"12":315,"6":330,"3":345,"1":390}},
+    "5": {label:"5 mp", dimensions:"De completat", prices:{"12":340,"6":355,"3":370,"1":420}},
+    "6": {label:"6 mp", dimensions:"De completat", prices:{"12":400,"6":415,"3":430,"1":490}},
+    "9": {label:"9 mp", dimensions:"De completat", prices:{"12":570,"6":585,"3":600,"1":650}},
+    "10": {label:"10 mp", dimensions:"De completat", prices:{"12":620,"6":640,"3":660,"1":710}},
+    "13.5": {label:"13,5 mp", dimensions:"De completat", prices:{"12":830,"6":845,"3":860,"1":910}},
+    "15": {label:"15 mp", dimensions:"De completat", prices:{"12":890,"6":910,"3":930,"1":990}},
+    "20": {label:"20 mp", dimensions:"De completat", prices:{"12":1200,"6":1250,"3":1300,"1":1400}}
   }
 };
-const locationEl=document.getElementById('location');
-const sizeEl=document.getElementById('size');
-const durationEl=document.getElementById('duration');
-const monthlyEl=document.getElementById('monthly');
-const totalEl=document.getElementById('total');
-const fmt=n=>new Intl.NumberFormat('ro-RO').format(n)+' lei';
-function fillSizes(){
-  const data=prices[locationEl.value].sizes;
-  sizeEl.innerHTML='';
-  Object.entries(data).forEach(([key,val])=>{
-    const opt=document.createElement('option');opt.value=key;opt.textContent=val.label;sizeEl.appendChild(opt);
-  });
-  updatePrice();
+let data = fallback;
+const locationEl=document.getElementById("location"), sizeEl=document.getElementById("size"), termEl=document.getElementById("term");
+function money(n){return Number(n).toLocaleString("ro-RO")+" lei";}
+function renderSizes(){
+  const sizes=data[locationEl.value]||{};
+  sizeEl.innerHTML="";
+  Object.entries(sizes).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
+  renderResult();
 }
-function selected(){
-  return prices[locationEl.value].sizes[sizeEl.value];
+function renderResult(){
+  const loc=locationEl.value, item=(data[loc]||{})[sizeEl.value];
+  const term=termEl.value;
+  if(!item){document.getElementById("price").textContent="Tarif indisponibil";return;}
+  const p=Number(item.prices?.[term]||0);
+  document.getElementById("price").textContent=p?money(p)+"/lună":"Contactați-ne";
+  document.getElementById("area").textContent=item.label||sizeEl.value+" mp";
+  document.getElementById("dimensions").textContent=item.dimensions||"Nespecificat";
+  document.getElementById("duration").textContent=term+" "+(term==="1"?"lună":"luni");
+  document.getElementById("total").textContent=p?money(p*Number(term)):"—";
+  const locationName=loc==="valealupului"?"Valea Lupului":"Valea Adâncă";
+  const message=`Bună ziua! Mă interesează o boxă Depo-Box în locația ${locationName}, ${item.label||sizeEl.value+" mp"}, pentru ${term} ${term==="1"?"lună":"luni"}. Preț afișat: ${p} lei/lună.`;
+  document.getElementById("whatsapp").href="https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(message);
 }
-function updatePrice(){
-  const item=selected(); if(!item)return;
-  const months=Number(durationEl.value),monthly=item.p[durationEl.value];
-  monthlyEl.textContent=fmt(monthly);
-  totalEl.textContent=fmt(monthly*months);
-}
-locationEl.addEventListener('change',fillSizes);
-sizeEl.addEventListener('change',updatePrice);
-durationEl.addEventListener('change',updatePrice);
-document.getElementById('send').addEventListener('click',()=>{
-  const name=document.getElementById('name').value.trim();
-  const phone=document.getElementById('phone').value.trim();
-  if(!name){alert('Te rog să introduci numele.');document.getElementById('name').focus();return;}
-  if(!phone){alert('Te rog să introduci numărul de telefon.');document.getElementById('phone').focus();return;}
-  const item=selected(),months=Number(durationEl.value),monthly=item.p[durationEl.value];
-  const msg=`Bună! Doresc informații despre o boxă Depo-Box.%0A%0ANume: ${encodeURIComponent(name)}%0ATelefon: ${encodeURIComponent(phone)}%0ALocație: ${encodeURIComponent(prices[locationEl.value].name)}%0ADimensiune: ${encodeURIComponent(item.label)}%0ADurată: ${months} ${months===1?'lună':'luni'}%0APreț lunar: ${encodeURIComponent(fmt(monthly))}%0ATotal contract: ${encodeURIComponent(fmt(monthly*months))}`;
-  window.open('https://wa.me/40750419504?text='+msg,'_blank','noopener');
+locationEl.addEventListener("change",renderSizes);sizeEl.addEventListener("change",renderResult);termEl.addEventListener("change",renderResult);
+db.doc("config/preturi").get().then(snap=>{
+  if(snap.exists){
+    const d=snap.data();
+    if(d.locations && d.locations.valealupului && d.locations.valeabadanc) data=d.locations;
+  }
+  document.getElementById("status").textContent="Tarife încărcate. Pentru întrebări, contactează Depo-Box pe WhatsApp.";
+  renderSizes();
+}).catch(()=>{
+  document.getElementById("status").textContent="Se afișează tarifele salvate în calculator. Conectarea la baza de date trebuie verificată.";
+  renderSizes();
 });
-document.getElementById('share').addEventListener('click',async()=>{
-  const data={title:'Depo-Box | Calculator prețuri',text:'Calculează prețul unei boxe Depo-Box.'};
-  if(navigator.share){try{await navigator.share(data)}catch(e){}}
-  else if(navigator.clipboard && location.href.startsWith('https:')){try{await navigator.clipboard.writeText(location.href);alert('Linkul a fost copiat.')}catch(e){alert('Copiază linkul din bara de adresă a browserului.');}}
-  else {alert('După publicarea online, copiază linkul din bara de adresă și distribuie-l.');}
-});
-fillSizes();
 </script>
 </body>
 </html>
