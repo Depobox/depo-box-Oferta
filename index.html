@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Depo-Box | Calculator prețuri</title>
 <style>
-:root{--navy:#198754;--green:#198754;--gold:#f2b544;--bg:#f4f6f9;--text:#182230;--muted:#657184;--line:#dfe5ed}
+:root{--navy:#198754;--blue:#198754;--green:#198754;--gold:#f2b544;--bg:#f4f6f9;--text:#182230;--muted:#657184;--line:#dfe5ed}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
 header{background:var(--navy);color:#fff;padding:24px 16px;text-align:center}header h1{margin:0;font-size:28px;letter-spacing:.4px}header p{margin:7px 0 0;color:#dce5f4}
 main{max-width:900px;margin:24px auto;padding:0 14px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #172b4d0a}
@@ -30,6 +30,8 @@ button,.whatsapp{display:inline-block;border:0;border-radius:8px;padding:12px 16
 <div class="muted">Preț pe lună</div><div class="price" id="price">Se încarcă...</div>
 <div class="detail"><span>Suprafață</span><strong id="area">—</strong></div>
 <div class="detail"><span>Dimensiuni</span><strong id="dimensions">—</strong></div>
+<div class="detail" id="extraDetailRow1" style="display:none"><span id="extraDetailLabel1">Detaliu</span><strong id="extraDetailValue1"></strong></div>
+<div class="detail" id="extraDetailRow2" style="display:none"><span id="extraDetailLabel2">Detaliu</span><strong id="extraDetailValue2"></strong></div>
 <div class="detail"><span>Durată</span><strong id="duration">12 luni</strong></div>
 <div class="detail"><span>Total pentru perioada aleasă</span><strong id="total">—</strong></div>
 <a class="whatsapp" id="whatsapp" target="_blank" rel="noopener">Solicită boxa pe WhatsApp</a>
@@ -79,10 +81,7 @@ function money(n){return Number(n).toLocaleString("ro-RO")+" lei";}
 function renderSizes(){
   const sizes=data[locationEl.value]||{};
   sizeEl.innerHTML="";
-  Object.entries(sizes).sort((a,b)=>{
-const order=locationEl.value==="valeabadanc"?["3","4.5","5","6","9","10","13.5","15","20"]:["3.5","5","7","10","15","20"];
-return order.indexOf(a[0])-order.indexOf(b[0]);
-}).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
+  Object.entries(sizes).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
   renderResult();
 }
 function renderResult(){
@@ -93,6 +92,13 @@ function renderResult(){
   document.getElementById("price").textContent=p?money(p)+"/lună":"Contactați-ne";
   document.getElementById("area").textContent=item.label||sizeEl.value+" mp";
   document.getElementById("dimensions").textContent=item.dimensions||"Nespecificat";
+  const detail1=String(item.detail1||"").trim(), detail2=String(item.detail2||"").trim();
+  document.getElementById("extraDetailLabel1").textContent="Detaliu suplimentar 1";
+  document.getElementById("extraDetailValue1").textContent=detail1;
+  document.getElementById("extraDetailRow1").style.display=detail1?"flex":"none";
+  document.getElementById("extraDetailLabel2").textContent="Detaliu suplimentar 2";
+  document.getElementById("extraDetailValue2").textContent=detail2;
+  document.getElementById("extraDetailRow2").style.display=detail2?"flex":"none";
   document.getElementById("duration").textContent=term+" "+(term==="1"?"lună":"luni");
   document.getElementById("total").textContent=p?money(p*Number(term)):"—";
   const locationName=loc==="valealupului"?"Valea Lupului":"Valea Adâncă";
