@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Depo-Box | Administrare prețuri</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#1b2738;font-family:Arial,sans-serif}header{background:#172b4d;color:white;padding:22px;text-align:center}main{max-width:1000px;margin:22px auto;padding:0 14px}.card{background:#fff;border:1px solid #dce3eb;border-radius:12px;padding:18px;margin-bottom:16px}h1{margin:0;font-size:25px}h2{font-size:19px;margin:0 0 14px}label{display:block;font-weight:bold;font-size:14px;margin:12px 0 6px}input,select{width:100%;padding:10px;border:1px solid #cbd4df;border-radius:7px;font-size:15px}button{border:0;border-radius:7px;padding:11px 15px;background:#2457a7;color:white;font-weight:bold;cursor:pointer;margin-top:12px}button.secondary{background:#e7edf5;color:#172b4d}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.unit{border:1px solid #dce3eb;border-radius:9px;padding:14px;margin:12px 0}.prices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.extra-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.extra-fields input{margin:0}.hidden{display:none}.status{margin-top:10px;font-size:14px;white-space:pre-wrap}.muted{font-size:13px;color:#647184;line-height:1.5}@media(max-width:650px){.row,.prices{grid-template-columns:1fr 1fr}header{padding:18px}}
+</style>
+</head>
+<body>
+<header><h1>DEPO-BOX</h1><div>Panou privat de administrare</div></header>
+<main>
+<section class="card" id="loginCard">
+<h2>Autentificare administrator</h2>
+<label for="email">E-mail</label><input id="email" type="email" value="depobox.vl@gmail.com" autocomplete="username">
+<label for="password">Parolă Firebase</label><input id="password" type="password" autocomplete="current-password">
+<button id="login">Autentificare</button><div class="status" id="loginStatus"></div>
+<p class="muted">Folosește parola contului creat în Firebase Authentication. Nu o trimite nimănui.</p>
+</section>
+<section class="card hidden" id="adminCard">
+<div class="row"><div><h2>Prețuri și detalii boxe</h2></div><div style="text-align:right"><button class="secondary" id="logout">Deconectare</button></div></div>
+<label for="location">Locație</label><select id="location"><option value="valealupului">Valea Lupului</option><option value="valeabadanc">Valea Adâncă</option></select>
+<div class="muted">Modifică tarifele pe lună și dimensiunile. Apasă „Salvează tarifele” pentru a publica schimbările în calculatorul public.</div>
+<div id="units"></div>
+<button id="addUnit" class="secondary">Adaugă o dimensiune de boxă</button><br>
+<button id="save">Salvează tarifele</button>
+<div class="status" id="saveStatus"></div>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCXzOPmQCXfRITvkn3B9YZC4GXe5c8_00M",
+  authDomain: "depo-box-admin.firebaseapp.com",
+  projectId: "depo-box-admin",
+  storageBucket: "depo-box-admin.firebasestorage.app",
+  messagingSenderId: "202575343129",
+  appId: "1:202575343129:web:89440882cf69eabf174488"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(), db=firebase.firestore();
+const initial={
+ valealupului:{
+  "3.5":{label:"3,5 mp",dimensions:"1,15 × 3 m",prices:{"12":230,"6":245,"3":260,"1":290}},
+  "5":{label:"5 mp",dimensions:"1,65 × 3 m",prices:{"12":330,"6":345,"3":360,"1":390}},
+  "7":{label:"7 mp",dimensions:"2,5 × 3 m",prices:{"12":430,"6":445,"3":460,"1":490}},
+  "10":{label:"10 mp",dimensions:"3,3 × 3 m",prices:{"12":590,"6":610,"3":630,"1":690}},
+  "15":{label:"15 mp",dimensions:"5 × 3 m",prices:{"12":830,"6":850,"3":870,"1":950}},
+  "20":{label:"20 mp",dimensions:"6,6 × 3 m",prices:{"12":1200,"6":1250,"3":1300,"1":1400}}
+ },
+ valeabadanc:{
+  "3":{label:"3 mp",dimensions:"De completat",prices:{"12":220,"6":235,"3":250,"1":290}},
+  "4.5":{label:"4,5 mp",dimensions:"De completat",prices:{"12":315,"6":330,"3":345,"1":390}},
+  "5":{label:"5 mp",dimensions:"De completat",prices:{"12":340,"6":355,"3":370,"1":420}},
+  "6":{label:"6 mp",dimensions:"De completat",prices:{"12":400,"6":415,"3":430,"1":490}},
+  "9":{label:"9 mp",dimensions:"De completat",prices:{"12":570,"6":585,"3":600,"1":650}},
+  "10":{label:"10 mp",dimensions:"De completat",prices:{"12":620,"6":640,"3":660,"1":710}},
+  "13.5":{label:"13,5 mp",dimensions:"De completat",prices:{"12":830,"6":845,"3":860,"1":910}},
+  "15":{label:"15 mp",dimensions:"De completat",prices:{"12":890,"6":910,"3":930,"1":990}},
+  "20":{label:"20 mp",dimensions:"De completat",prices:{"12":1200,"6":1250,"3":1300,"1":1400}}
+ }
+};
+let locations=JSON.parse(JSON.stringify(initial));
+const $=id=>document.getElementById(id);
+function num(v){const n=Number(v);return Number.isFinite(n)&&n>=0?n:0;}
+function escapeAttr(v){return String(v).replace(/&/g,"&amp;").replace(/\"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function render(){
+ const loc=$("location").value, units=$("units");units.innerHTML="";
+ Object.entries(locations[loc]||{}).forEach(([key,u])=>{
+  const div=document.createElement("div");div.className="unit";div.dataset.key=key;
+  div.innerHTML=`<div class="row"><div><label>Suprafață (mp)</label><input class="area" value="${u.label||key+' mp'}"></div><div><label>Dimensiuni</label><input class="dimensions" value="${u.dimensions||''}" placeholder="Ex. 1,65 × 3 m"></div></div>
+  <div class="prices">${["12","6","3","1"].map(t=>`<div><label>${t} luni, lei/lună</label><input class="p${t}" type="number" min="0" value="${u.prices?.[t]??0}"></div>`).join("")}</div>
+  <div class="extra-fields">${Array.from({length:10},(_,i)=>`<input class="detail${i+1}" aria-label="—" title="—" value="${escapeAttr(u["detail"+(i+1)]||"")}" placeholder="—">`).join("")}</div>
+  <button class="secondary remove">Șterge această dimensiune</button>`;
+  div.querySelector(".remove").onclick=()=>{delete locations[loc][key];render();};
+  units.appendChild(div);
+ });
+}
+$("location").onchange=render;
+$("addUnit").onclick=()=>{
+ const loc=$("location").value;let key=prompt("Introdu suprafața în mp, de exemplu 8 sau 12.5:");
+ if(!key)return;key=key.trim().replace(",",".");
+ if(!/^\d+(\.\d+)?$/.test(key)){alert("Introdu o suprafață numerică, de exemplu 8 sau 12.5.");return;}
+ if(locations[loc][key]){alert("Această suprafață există deja.");return;}
+ const label=key.replace(".",",")+" mp";
+ locations[loc][key]={label,dimensions:"De completat",prices:{"12":0,"6":0,"3":0,"1":0}};render();
+};
+$("login").onclick=async()=>{
+ $("loginStatus").textContent="Se verifică datele...";
+ try{await auth.signInWithEmailAndPassword($("email").value.trim(),$("password").value);$("loginStatus").textContent="Autentificare reușită.";}
+ catch(e){$("loginStatus").textContent="Autentificare nereușită: "+(e.code||e.message);}
+};
+auth.onAuthStateChanged(async user=>{
+ if(user){$("loginCard").classList.add("hidden");$("adminCard").classList.remove("hidden");
+  try{const snap=await db.doc("config/preturi").get();if(snap.exists&&snap.data().locations)locations=snap.data().locations;}catch(e){$("saveStatus").textContent="Nu am putut citi tarifele: "+e.message;}
+  render();
+ }else{$("loginCard").classList.remove("hidden");$("adminCard").classList.add("hidden");}
+});
+$("logout").onclick=()=>auth.signOut();
+$("save").onclick=async()=>{
+ const loc=$("location").value;
+ document.querySelectorAll(".unit").forEach(div=>{
+  const key=div.dataset.key;
+  if(!locations[loc][key])return;
+  const u=locations[loc][key];
+  u.label=div.querySelector(".area").value.trim();
+  u.dimensions=div.querySelector(".dimensions").value.trim();
+  u.prices={"12":num(div.querySelector(".p12").value),"6":num(div.querySelector(".p6").value),"3":num(div.querySelector(".p3").value),"1":num(div.querySelector(".p1").value)};
+  u.detail1=div.querySelector(".detail1").value.trim();
+  u.detail2=div.querySelector(".detail2").value.trim();
+ });
+ $("saveStatus").textContent="Se salvează...";
+ try{await db.doc("config/preturi").set({active:true,locations,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});$("saveStatus").textContent="Tarife salvate. Calculatorul public le va prelua din Firebase.";}
+ catch(e){$("saveStatus").textContent="Eroare la salvare: "+(e.code||e.message)+". Verifică regulile Firestore și contul administratorului.";}
+};
+</script>
+</body>
+</html>
