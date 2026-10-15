@@ -11,9 +11,9 @@ header{background:var(--navy);color:#fff;padding:24px 16px;text-align:center}hea
 main{max-width:900px;margin:24px auto;padding:0 14px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #172b4d0a}
 h2{margin:0 0 16px;font-size:20px;color:var(--navy)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}select{width:100%;padding:12px;border:1px solid #cbd4e0;border-radius:8px;background:#fff;font-size:16px;color:var(--text)}
-.result{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px}.price{font-size:32px;font-weight:800;color:var(--green);margin:4px 0}.muted{color:var(--muted);font-size:14px;line-height:1.5}.detail{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.detail:last-child{border-bottom:0}
+.result{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px}.price{font-size:32px;font-weight:800;color:var(--green);margin:4px 0}.muted{color:var(--muted);font-size:14px;line-height:1.5}.detail{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.detail:last-child{border-bottom:0}.photo-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.photo-gallery img{width:100%;height:180px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 button,.whatsapp{display:inline-block;border:0;border-radius:8px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none}.whatsapp{background:#168b54;color:#fff;margin-top:14px}.status{font-size:13px;color:var(--muted);margin-top:12px}
-@media(max-width:600px){.grid{grid-template-columns:1fr}header h1{font-size:24px}.panel{padding:16px}.price{font-size:28px}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.photo-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.photo-gallery img{height:130px}header h1{font-size:24px}.panel{padding:16px}.price{font-size:28px}}
 </style>
 </head>
 <body>
@@ -29,9 +29,8 @@ button,.whatsapp{display:inline-block;border:0;border-radius:8px;padding:12px 16
 <div class="result">
 <div class="muted">Preț pe lună</div><div class="price" id="price">Se încarcă...</div>
 <div class="detail"><span>Suprafață</span><strong id="area">—</strong></div>
-<div class="detail"><span>Dimensiuni</span><strong id="dimensions">—</strong></div>
 <div class="detail"><span>Durată</span><strong id="duration">12 luni</strong></div>
-<div class="detail"><span>Total pentru perioada aleasă</span><strong id="total">—</strong></div>
+<div class="detail"><span>Dimensiuni</span><strong id="dimensions">—</strong></div>
 <div class="detail" id="extraDetailRow1" style="display:none"><span>—</span><strong id="extraDetailValue1"></strong></div>
 <div class="detail" id="extraDetailRow2" style="display:none"><span>—</span><strong id="extraDetailValue2"></strong></div>
 <div class="detail" id="extraDetailRow3" style="display:none"><span>—</span><strong id="extraDetailValue3"></strong></div>
@@ -42,6 +41,7 @@ button,.whatsapp{display:inline-block;border:0;border-radius:8px;padding:12px 16
 <div class="detail" id="extraDetailRow8" style="display:none"><span>—</span><strong id="extraDetailValue8"></strong></div>
 <div class="detail" id="extraDetailRow9" style="display:none"><span>—</span><strong id="extraDetailValue9"></strong></div>
 <div class="detail" id="extraDetailRow10" style="display:none"><span>—</span><strong id="extraDetailValue10"></strong></div>
+<div id="photoGallery" class="photo-gallery" style="display:none"></div>
 <a class="whatsapp" id="whatsapp" target="_blank" rel="noopener">Solicită boxa pe WhatsApp</a>
 <p class="muted">Prețurile afișate sunt în lei/lună. Disponibilitatea se confirmă de echipa Depo-Box.</p>
 </div>
@@ -105,8 +105,12 @@ function renderResult(){
     document.getElementById("extraDetailValue"+i).textContent=detail;
     document.getElementById("extraDetailRow"+i).style.display=detail?"flex":"none";
   }
+  const gallery=document.getElementById("photoGallery");
+  gallery.innerHTML="";
+  const photos=Array.isArray(item.photos)?item.photos.filter(Boolean).slice(0,5):[];
+  photos.forEach((url,i)=>{const img=document.createElement("img");img.src=url;img.alt="Fotografie boxă "+(i+1);img.loading="lazy";gallery.appendChild(img);});
+  gallery.style.display=photos.length?"grid":"none";
   document.getElementById("duration").textContent=term+" "+(term==="1"?"lună":"luni");
-  document.getElementById("total").textContent=p?money(p*Number(term)):"—";
   const locationName=loc==="valealupului"?"Valea Lupului":"Valea Adâncă";
   const message=`Bună ziua! Mă interesează o boxă Depo-Box în locația ${locationName}, ${item.label||sizeEl.value+" mp"}, pentru ${term} ${term==="1"?"lună":"luni"}. Preț afișat: ${p} lei/lună.`;
   document.getElementById("whatsapp").href="https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(message);
