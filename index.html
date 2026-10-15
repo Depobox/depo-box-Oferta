@@ -92,13 +92,11 @@ function renderResult(){
   document.getElementById("price").textContent=p?money(p)+"/lună":"Contactați-ne";
   document.getElementById("area").textContent=item.label||sizeEl.value+" mp";
   document.getElementById("dimensions").textContent=item.dimensions||"Nespecificat";
-  const detail1=String(item.detail1||"").trim(), detail2=String(item.detail2||"").trim();
-  document.getElementById("extraDetailLabel1").textContent="-";
-  document.getElementById("extraDetailValue1").textContent=detail1;
-  document.getElementById("extraDetailRow1").style.display=detail1?"flex":"none";
-  document.getElementById("extraDetailLabel2").textContent="-";
-  document.getElementById("extraDetailValue2").textContent=detail2;
-  document.getElementById("extraDetailRow2").style.display=detail2?"flex":"none";
+  for(let i=1;i<=10;i++){
+    const detail=String(item["detail"+i]||"").trim();
+    document.getElementById("extraDetailValue"+i).textContent=detail;
+    document.getElementById("extraDetailRow"+i).style.display=detail?"flex":"none";
+  }
   document.getElementById("duration").textContent=term+" "+(term==="1"?"lună":"luni");
   document.getElementById("total").textContent=p?money(p*Number(term)):"—";
   const locationName=loc==="valealupului"?"Valea Lupului":"Valea Adâncă";
