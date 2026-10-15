@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Depo-Box | Administrare prețuri</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#1b2738;font-family:Arial,sans-serif}header{background:#172b4d;color:white;padding:22px;text-align:center}main{max-width:1000px;margin:22px auto;padding:0 14px}.card{background:#fff;border:1px solid #dce3eb;border-radius:12px;padding:18px;margin-bottom:16px}h1{margin:0;font-size:25px}h2{font-size:19px;margin:0 0 14px}label{display:block;font-weight:bold;font-size:14px;margin:12px 0 6px}input,select{width:100%;padding:10px;border:1px solid #cbd4df;border-radius:7px;font-size:15px}button{border:0;border-radius:7px;padding:11px 15px;background:#2457a7;color:white;font-weight:bold;cursor:pointer;margin-top:12px}button.secondary{background:#e7edf5;color:#172b4d}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.unit{border:1px solid #dce3eb;border-radius:9px;padding:14px;margin:12px 0}.prices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.extra-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.extra-fields input{margin:0}.hidden{display:none}.status{margin-top:10px;font-size:14px;white-space:pre-wrap}.muted{font-size:13px;color:#647184;line-height:1.5}@media(max-width:650px){.row,.prices{grid-template-columns:1fr 1fr}header{padding:18px}}
+*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#1b2738;font-family:Arial,sans-serif}header{background:#172b4d;color:white;padding:22px;text-align:center}main{max-width:1000px;margin:22px auto;padding:0 14px}.card{background:#fff;border:1px solid #dce3eb;border-radius:12px;padding:18px;margin-bottom:16px}h1{margin:0;font-size:25px}h2{font-size:19px;margin:0 0 14px}label{display:block;font-weight:bold;font-size:14px;margin:12px 0 6px}input,select{width:100%;padding:10px;border:1px solid #cbd4df;border-radius:7px;font-size:15px}button{border:0;border-radius:7px;padding:11px 15px;background:#2457a7;color:white;font-weight:bold;cursor:pointer;margin-top:12px}button.secondary{background:#e7edf5;color:#172b4d}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.unit{border:1px solid #dce3eb;border-radius:9px;padding:14px;margin:12px 0}.prices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.extra-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.extra-fields input{margin:0}.photo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:8px}.photo-slot{border:1px solid #dce3eb;border-radius:8px;padding:8px;min-width:0}.photo-slot img{width:100%;height:90px;object-fit:cover;border-radius:5px;display:block;margin-bottom:6px}.photo-slot input{font-size:12px;padding:6px}.photo-help{font-size:12px;color:#647184;margin-top:6px}.hidden{display:none}.status{margin-top:10px;font-size:14px;white-space:pre-wrap}.muted{font-size:13px;color:#647184;line-height:1.5}@media(max-width:650px){.row,.prices{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}header{padding:18px}}
 </style>
 </head>
 <body>
@@ -30,6 +30,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCXzOPmQCXfRITvkn3B9YZC4GXe5c8_00M",
@@ -40,7 +41,7 @@ const firebaseConfig = {
   appId: "1:202575343129:web:89440882cf69eabf174488"
 };
 firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth(), db=firebase.firestore();
+const auth=firebase.auth(), db=firebase.firestore(), storage=firebase.storage();
 const initial={
  valealupului:{
   "3.5":{label:"3,5 mp",dimensions:"1,15 × 3 m",prices:{"12":230,"6":245,"3":260,"1":290}},
@@ -73,6 +74,9 @@ function render(){
   div.innerHTML=`<div class="row"><div><label>Suprafață (mp)</label><input class="area" value="${u.label||key+' mp'}"></div><div><label>Dimensiuni</label><input class="dimensions" value="${u.dimensions||''}" placeholder="Ex. 1,65 × 3 m"></div></div>
   <div class="prices">${["12","6","3","1"].map(t=>`<div><label>${t} luni, lei/lună</label><input class="p${t}" type="number" min="0" value="${u.prices?.[t]??0}"></div>`).join("")}</div>
   <div class="extra-fields">${Array.from({length:10},(_,i)=>`<input class="detail${i+1}" aria-label="—" title="—" value="${escapeAttr(u["detail"+(i+1)]||"")}" placeholder="—">`).join("")}</div>
+  <label>Fotografii boxă (maximum 5)</label>
+  <div class="photo-grid">${Array.from({length:5},(_,i)=>{const url=(u.photos||[])[i]||"";return `<div class="photo-slot"><img class="photo-preview${i+1}" src="${escapeAttr(url)}" alt="${url?'Fotografie '+(i+1):'Fără fotografie'}" style="${url?'':'display:none'}"><input class="photo${i+1}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Fotografie ${i+1}"><div class="photo-help">Poza ${i+1}</div></div>`}).join("")}</div>
+  <div class="photo-help">Alege până la 5 fotografii JPG, PNG sau WebP. Recomandat: maximum 5 MB fiecare. Apasă „Salvează tarifele” pentru încărcare.</div>
   <button class="secondary remove">Șterge această dimensiune</button>`;
   div.querySelector(".remove").onclick=()=>{delete locations[loc][key];render();};
   units.appendChild(div);
@@ -112,9 +116,28 @@ $("save").onclick=async()=>{
    u["detail"+i]=div.querySelector(".detail"+i).value.trim();
   }
  });
- $("saveStatus").textContent="Se salvează...";
- try{await db.doc("config/preturi").set({active:true,locations,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});$("saveStatus").textContent="Tarife salvate. Calculatorul public le va prelua din Firebase.";}
- catch(e){$("saveStatus").textContent="Eroare la salvare: "+(e.code||e.message)+". Verifică regulile Firestore și contul administratorului.";}
+ $("saveStatus").textContent="Se salvează tarifele și fotografiile...";
+ try{
+   for(const div of document.querySelectorAll(".unit")){
+     const loc=$("location").value, key=div.dataset.key, u=locations[loc][key];
+     u.photos=Array.isArray(u.photos)?u.photos.slice(0,5):[];
+     for(let i=1;i<=5;i++){
+       const input=div.querySelector(".photo"+i), file=input.files && input.files[0];
+       if(!file) continue;
+       if(!/^image\/(jpeg|png|webp)$/.test(file.type)){throw new Error("Fotografia "+i+" pentru boxa "+(u.label||key)+" trebuie să fie JPG, PNG sau WebP.");}
+       if(file.size>5*1024*1024){throw new Error("Fotografia "+i+" pentru boxa "+(u.label||key)+" depășește 5 MB.");}
+       const path=`box-photos/${loc}/${key}/photo${i}`;
+       const ref=storage.ref().child(path);
+       await ref.put(file,{contentType:file.type});
+       u.photos[i-1]=await ref.getDownloadURL();
+     }
+     u.photos=u.photos.slice(0,5);
+   }
+   await db.doc("config/preturi").set({active:true,locations,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+   $("saveStatus").textContent="Tarife salvate. Fotografiile încărcate vor apărea în calculatorul public.";
+   render();
+ }
+ catch(e){$("saveStatus").textContent="Eroare la salvare/încărcare: "+(e.code||e.message)+". Verifică dacă Firebase Storage este activ și permite încărcarea pentru administrator.";}
 };
 </script>
 </body>
