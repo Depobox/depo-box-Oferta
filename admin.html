@@ -108,8 +108,9 @@ $("save").onclick=async()=>{
   u.label=div.querySelector(".area").value.trim();
   u.dimensions=div.querySelector(".dimensions").value.trim();
   u.prices={"12":num(div.querySelector(".p12").value),"6":num(div.querySelector(".p6").value),"3":num(div.querySelector(".p3").value),"1":num(div.querySelector(".p1").value)};
-  u.detail1=div.querySelector(".detail1").value.trim();
-  u.detail2=div.querySelector(".detail2").value.trim();
+  for(let i=1;i<=10;i++){
+   u["detail"+i]=div.querySelector(".detail"+i).value.trim();
+  }
  });
  $("saveStatus").textContent="Se salvează...";
  try{await db.doc("config/preturi").set({active:true,locations,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});$("saveStatus").textContent="Tarife salvate. Calculatorul public le va prelua din Firebase.";}
