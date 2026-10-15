@@ -89,7 +89,7 @@ function money(n){return Number(n).toLocaleString("ro-RO")+" lei";}
 function renderSizes(){
   const sizes=data[locationEl.value]||{};
   sizeEl.innerHTML="";
-  Object.entries(sizes).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
+  Object.entries(sizes).sort(([a],[b])=>parseFloat(a)-parseFloat(b)).forEach(([key,item])=>{const o=document.createElement("option");o.value=key;o.textContent=item.label||key+" mp";sizeEl.appendChild(o);});
   renderResult();
 }
 function renderResult(){
